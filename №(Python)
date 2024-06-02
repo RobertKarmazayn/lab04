@@ -1,0 +1,43 @@
+import numpy as np
+
+# Коэффициенты системы
+A = np.array([[29, 8, 9, -9],
+              [-7, -25, 9, 0],
+              [1, 6, 16, -2],
+              [-1, 4, -2, 17]])
+
+# Свободные члены
+b = np.array([197, -226, -95, -58])
+
+# Начальное приближение
+x = np.zeros(4)
+
+# Точность
+tolerance = 0.01
+
+# Максимальное количество итераций
+max_iterations = 1000
+
+# Итерации метода Зейделя
+iteration = 0
+while iteration < max_iterations:
+    for i in range(4):
+        # Вычисление нового приближения для x_i
+        x_new = (b[i] - np.dot(A[i, :i], x[:i]) - np.dot(A[i, i+1:], x[i+1:])) / A[i, i]
+        
+        # Обновление x_i
+        x[i] = x_new
+    
+    # Проверка условия останова
+    if np.linalg.norm(x - x_new) < tolerance:
+        break
+    
+    # Увеличение счетчика итераций
+    iteration += 1
+
+# Вывод результатов
+if iteration < max_iterations:
+    print("Решение найдено за", iteration, "итераций:")
+    print("x =", x)
+else:
+    print("Решение не найдено за", max_iterations, "итераций.")
