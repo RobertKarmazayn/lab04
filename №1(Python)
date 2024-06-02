@@ -1,0 +1,91 @@
+import numpy as np
+
+# Функция для преобразования системы уравнений в матрицу
+def to_matrix(equations):
+    n = len(equations)
+    matrix = np.zeros((n, n + 1))
+    for i, equation in enumerate(equations):
+        for j, coefficient in enumerate(equation):
+            matrix[i, j] = coefficient
+    return matrix
+
+# Функция для решения системы уравнений матричным методом
+def matrix_method(matrix):
+    n = matrix.shape[0]
+    solution = np.zeros(n)
+
+    # Прямой ход
+    for i in range(n):
+        # Делим строку на коэффициент при ведущем элементе
+        divisor = matrix[i, i]
+        matrix[i, :] /= divisor
+
+        # Вычитаем кратные ведущей строки из остальных строк
+        for j in range(i + 1, n):
+            multiplier = matrix[j, i]
+            matrix[j, :] -= multiplier * matrix[i, :]
+
+    # Обратный ход
+    for i in range(n - 1, -1, -1):
+        solution[i] = matrix[i, n]
+        for j in range(i + 1, n):
+            solution[i] -= matrix[i, j] * solution[j]
+
+    return solution
+
+# Функция для решения системы уравнений методом Гаусса
+def gauss_method(matrix):
+    n = matrix.shape[0]
+
+    # Прямой ход
+    for i in range(n):
+        # Находим максимальный элемент в столбце
+        max_row = i
+        for j in range(i + 1, n):
+            if abs(matrix[j, i]) > abs(matrix[max_row, i]):
+                max_row = j
+
+        # Меняем строки местами, если необходимо
+        if max_row != i:
+            matrix[[i, max_row]] = matrix[[max_row, i]]
+
+        # Проверяем, что ведущий элемент не равен 0
+        if matrix[i, i] == 0:
+            print("Система не имеет единственного решения.")
+            return None
+
+        # Делим строку на коэффициент при ведущем элементе
+        divisor = matrix[i, i]
+        matrix[i, :] /= divisor
+
+        # Вычитаем кратные ведущей строки из остальных строк
+        for j in range(i + 1, n):
+            multiplier = matrix[j, i]
+            matrix[j, :] -= multiplier * matrix[i, :]
+
+    # Обратный ход
+    solution = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        solution[i] = matrix[i, n]
+        for j in range(i + 1, n):
+            solution[i] -= matrix[i, j] * solution[j]
+
+    return solution
+
+# Вводим коэффициенты системы уравнений
+equations = [
+    [-75,  1, -5, -7,  1],
+    [-11,  1, -3, -9, -1],
+    [ 18, -1,  4,  2,  1],
+    [ 29, -1,  9,  9, -3]
+]
+
+# Решаем систему уравнений матричным методом
+matrix = to_matrix(equations)
+solution1 = matrix_method(matrix)
+print("Решение матричным методом: ", solution1)
+
+# Решаем систему уравнений методом Гаусса
+solution2 = gauss_method(matrix)
+if solution2 is not None:
+    print("Решение методом Гаусса: ", solution2)
