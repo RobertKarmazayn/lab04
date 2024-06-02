@@ -1,0 +1,89 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+// Метод Крамера
+double solve_cramer(double a11, double a12, double a13, double b1,
+                   double a21, double a22, double a23, double b2,
+                   double a31, double a32, double a33, double b3) {
+    // Вычисление определителя
+    double determinant = a11 * (a22 * a33 - a23 * a32) - a12 * (a21 * a33 - a23 * a31) + a13 * (a21 * a32 - a22 * a31);
+    if (determinant == 0) {
+        throw runtime_error("Система не имеет единственного решения.");
+    }
+
+    // Вычисление значения x1, x2, x3
+    double x1 = (b1 * (a22 * a33 - a23 * a32) - b2 * (a21 * a33 - a23 * a31) + b3 * (a21 * a32 - a22 * a31)) / determinant;
+    double x2 = (b1 * (a13 * a32 - a12 * a33) - b2 * (a11 * a33 - a13 * a31) + b3 * (a11 * a32 - a12 * a31)) / determinant;
+    double x3 = (b1 * (a12 * a23 - a13 * a22) - b2 * (a11 * a23 - a13 * a21) + b3 * (a11 * a22 - a12 * a21)) / determinant;
+
+    return x1;  // Или x2 или x3, так как все они равны
+}
+
+// Метод Якоби
+void solve_jacobi(double a11, double a12, double a13, double b1,
+                  double a21, double a22, double a23, double b2,
+                  double a31, double a32, double a33, double b3,
+                  double initial_guess_x1, double initial_guess_x2, double initial_guess_x3,
+                  double tolerance, int max_iterations) {
+    // Инициализация итераций и приближений
+    int iteration = 0;
+    double x1 = initial_guess_x1;
+    double x2 = initial_guess_x2;
+    double x3 = initial_guess_x3;
+
+    // Итерации метода Якоби
+    while (iteration < max_iterations) {
+        double x1_new = (b1 - a12 * x2 - a13 * x3) / a11;
+        double x2_new = (b2 - a21 * x1 - a23 * x3) / a22;
+        double x3_new = (b3 - a31 * x1 - a32 * x2) / a33;
+
+        // Проверка условия останова
+        if (fabs(x1_new - x1) < tolerance && fabs(x2_new - x2) < tolerance && fabs(x3_new - x3) < tolerance) {
+            break;
+        }
+
+        // Обновление приближений
+        x1 = x1_new;
+        x2 = x2_new;
+        x3 = x3_new;
+
+        // Увеличение счетчика итераций
+        iteration++;
+    }
+
+    // Вывод результатов
+    cout << "x1 = " << x1 << endl;
+    cout << "x2 = " << x2 << endl;
+    cout << "x3 = " << x3 << endl;
+    cout << "Количество итераций: " << iteration << endl;
+}
+
+int main() {
+    // Коэффициенты системы
+    double a11 = 3, a12 = 12, a13 = -5;
+    double a21 = 3, a22 = 5, a23 = -2;
+    double a31 = -1, a32 = 2, a33 = -1;
+
+    // Свободные члены
+    double b1 = 1, b2 = 1, b3 = 1;
+
+    // Вычисление решения методом Крамера
+    try {
+        double x = solve_cramer(a11, a12, a13, b1, a21, a22, a23, b2, a31, a32, a33, b3);
+        cout << "Решение методом Крамера: x = " << x << endl;
+    } catch (runtime_error& e) {
+        cout << e.what() << endl;
+    }
+
+    // Вычисление решения методом Якоби
+    double initial_guess_x1 = 0, initial_guess_x2 = 0, initial_guess_x3 = 0;
+    double tolerance = 0.0001;
+    int max_iterations = 100;
+    solve_jacobi(a11, a12, a13, b1, a21, a22, a23, b2, a31, a32, a33, b3,
+                 initial_guess_x1, initial_guess_x2, initial_guess_x3,
+                 tolerance, max_iterations);
+
+    return 0;
+}
